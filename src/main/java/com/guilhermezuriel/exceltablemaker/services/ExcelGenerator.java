@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.guilhermezuriel.exceltablemaker.annotations.ExcelColumn;
+import com.guilhermezuriel.exceltablemaker.annotations.ExcelTable;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
@@ -20,11 +22,8 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-//import br.com.conivales.iconsorcio.application.service.excel.annotations.ExcelColumn;
-//import br.com.conivales.iconsorcio.application.service.excel.annotations.ExcelTable;
 
 @Service
 public class ExcelGenerator{
@@ -96,20 +95,14 @@ public class ExcelGenerator{
     }
 
 
-    private void validarListaDeDados(List<?> listaDados) throws ApplicationException {
+    private void validarListaDeDados(List<?> listaDados) {
         if (listaDados.isEmpty()) {
-            throw ApplicationException.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .messageKey(MessageKeysEnum.LISTA_DADOS_PARA_PROCESSAMENTO_ESTA_VAZIA)
-                    .build();
+            throw new RuntimeException();
         }
         Object first = listaDados.getFirst();
         Class<?> aClass = first.getClass();
         if (aClass.getAnnotation(ExcelTable.class) == null) {
-            throw ApplicationException.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .messageKey(MessageKeysEnum.NAO_FOI_POSSIVEL_PROCESSAR_LISTA_DE_DADOS)
-                    .build();
+            throw new RuntimeException();
         }
     }
 
