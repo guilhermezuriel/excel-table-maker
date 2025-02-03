@@ -1,58 +1,60 @@
 package com.guilhermezuriel.exceltablemaker.services;
 
-import com.guilhermezuriel.exceltablemaker.annotations.ExcelColumn;
-import com.guilhermezuriel.exceltablemaker.annotations.ExcelTable;
 import com.guilhermezuriel.exceltablemaker.dtos.RequestExcelTable;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 
 @Service
 public class ExcelGeneratorWeb {
 
-    public byte[] criarPlanilhaExcel(RequestExcelTable request) throws IOException {
-//        this.validarListaDeDados(request.getData());
-
+    public byte[] createExcelSheet(RequestExcelTable request) throws IOException {
+//        this.validarListaDeDados(request.data());
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             //TODO: CHANGE
-            String nomePlanilha = request.getName() + ".xlsx";
-            Set<String> nomeColunas = this.extrairColunasPorAnotacoes(request.getData());
 
-            if (nomeColunas.isEmpty()) {
+            String name;
+            if(Objects.isNull(request.name())){
+                name = UUID.randomUUID().toString();
+            }
+            name = request.name();
+            Set<String> columns = this.extractColumnsByReference((LinkedHashMap<String, Object>) request.data().getFirst());
+
+            if (columns.isEmpty()) {
                 return null;
             }
 
             int rowCount = 0;
 
-            var data = request.getData();
+            var data = request.data();
 
-            XSSFCellStyle titleStyle = this.criarEstiloDoTitulo(workbook);
-            XSSFCellStyle headerCellStyle = this.criarEstiloHeaderDoExcel(workbook);
-            XSSFCellStyle dataCellStyle = this.criarEstiloDosDados(workbook);
+            XSSFSheet sheet = workbook.createSheet(name);
 
-            XSSFSheet sheet = workbook.createSheet(nomePlanilha);
-
+            //REFACTOR: EXTRACT METHOD
+            XSSFCellStyle titleStyle = this.createTitleStyle(workbook);
             XSSFRow titleRow = sheet.createRow(rowCount++);
             titleRow.setHeightInPoints((short) 50);
-            XSSFCell titulo = titleRow.createCell(0);
-            titulo.setCellStyle(titleStyle);
-            titulo.setCellValue(request.getName());
+            XSSFCell title = titleRow.createCell(0);
+            title.setCellStyle(titleStyle);
+            title.setCellValue(request.name());
+
+            XSSFCellStyle headerCellStyle = this.createHeaderStyle(workbook);
+            XSSFCellStyle dataCellStyle = this.createDataStyle(workbook);
 
             XSSFRow headerRow = sheet.createRow(rowCount++);
             headerRow.setHeightInPoints((short) 20);
-           var iterator = nomeColunas.iterator();
-            for (int i = 0; i < nomeColunas.size(); i++) {
+           var iterator = columns.iterator();
+            for (int i = 0; i < columns.size(); i++) {
                 XSSFCell cell = headerRow.createCell(i);
                 cell.setCellValue(iterator.next());
                 cell.setCellStyle(headerCellStyle);
@@ -61,8 +63,8 @@ public class ExcelGeneratorWeb {
             for (Object object : data) {
                 XSSFRow row = sheet.createRow(rowCount++);
                 LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) object;
-                var newIterator = nomeColunas.iterator();
-                for (int i = 0; i < nomeColunas.size(); i++) {
+                var newIterator = columns.iterator();
+                for (int i = 0; i < columns.size(); i++) {
                     XSSFCell cell = row.createCell(i);
                     Object value = map.get(newIterator.next());
                     cell.setCellStyle(dataCellStyle);
@@ -77,7 +79,7 @@ public class ExcelGeneratorWeb {
                     }
                 }
             }
-            for (int i = 0; i < nomeColunas.size(); i++) {
+            for (int i = 0; i < columns.size(); i++) {
                 sheet.autoSizeColumn(i);
             }
             try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
@@ -87,32 +89,11 @@ public class ExcelGeneratorWeb {
         }
     }
 
-
-    private void validarListaDeDados(List<?> listaDados) {
-        if (listaDados.isEmpty()) {
-            throw new RuntimeException();
-        }
-        Object first = listaDados.getFirst();
-        Class<?> aClass = first.getClass();
-        if (aClass.getAnnotation(ExcelTable.class) == null) {
-            throw new RuntimeException();
-        }
+    private Set<String> extractColumnsByReference(LinkedHashMap<String, Object> data) {
+        return data.keySet();
     }
 
-
-    private String extrairNomePlanilhaPorAnotacao(Object object) {
-        String nomePlanilha = object.getClass().getAnnotation(ExcelTable.class).name();
-        if (nomePlanilha == null || nomePlanilha.isEmpty()) return object.getClass().getSimpleName();
-        return nomePlanilha;
-    }
-
-    private Set<String> extrairColunasPorAnotacoes(List<?> list) {
-        LinkedHashMap<String, String> object = (LinkedHashMap<String, String>) list.getFirst();
-        Set<String> fields = object.keySet();
-        return fields;
-    }
-
-    private XSSFCellStyle criarEstiloDoTitulo(XSSFWorkbook workbook) {
+    private XSSFCellStyle createTitleStyle(XSSFWorkbook workbook) {
         Font titleFont = workbook.createFont();
         titleFont.setFontHeightInPoints((short) 36);
         titleFont.setColor(IndexedColors.DARK_BLUE.getIndex());
@@ -130,7 +111,7 @@ public class ExcelGeneratorWeb {
     }
 
 
-    private XSSFCellStyle criarEstiloHeaderDoExcel(XSSFWorkbook workbook) {
+    private XSSFCellStyle createHeaderStyle(XSSFWorkbook workbook) {
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
         headerFont.setFontHeightInPoints((short) 13);
@@ -147,7 +128,7 @@ public class ExcelGeneratorWeb {
         return headerCellStyle;
     }
 
-    private XSSFCellStyle criarEstiloDosDados(XSSFWorkbook workbook) {
+    private XSSFCellStyle createDataStyle(XSSFWorkbook workbook) {
         XSSFCellStyle dataCellStyle = workbook.createCellStyle();
         dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
         dataCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
