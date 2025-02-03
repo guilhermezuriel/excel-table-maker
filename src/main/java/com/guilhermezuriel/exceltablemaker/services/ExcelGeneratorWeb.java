@@ -1,22 +1,9 @@
 package com.guilhermezuriel.exceltablemaker.services;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import com.guilhermezuriel.exceltablemaker.annotations.ExcelColumn;
 import com.guilhermezuriel.exceltablemaker.annotations.ExcelTable;
 import com.guilhermezuriel.exceltablemaker.dtos.RequestExcelTable;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -24,28 +11,31 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.*;
+
 
 @Service
 public class ExcelGeneratorWeb {
-    /**
-     * Método para criar uma planilha Excel, os dados podem ser carregados a partir de qualquer DTO, contanto que seja não seja uma classe wrapper. O nome da planilha é
-     * recuperado através da anotação @ExcelTable, presente na classe dos dados. Os nomes das colunas tem relação direta com @ExcelColumn.
-     *
-     * @param listaDados - Lista contendo os dados a serem preenchidos
-     */
-    public byte[] criarPlanilhaExcel(RequestExcelTable request) throws IOException {
-        this.validarListaDeDados(request.getData());
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {szdxxxxxzzz
 
+    public byte[] criarPlanilhaExcel(RequestExcelTable request) throws IOException {
+//        this.validarListaDeDados(request.getData());
+
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             //TODO: CHANGE
             String nomePlanilha = request.getName() + ".xlsx";
-            List<String> nomeColunas = this.extrairColunasPorAnotacoes(request.getReferenceObject());
+            Set<String> nomeColunas = this.extrairColunasPorAnotacoes(request.getData());
 
             if (nomeColunas.isEmpty()) {
                 return null;
             }
 
             int rowCount = 0;
+
+            var data = request.getData();
 
             XSSFCellStyle titleStyle = this.criarEstiloDoTitulo(workbook);
             XSSFCellStyle headerCellStyle = this.criarEstiloHeaderDoExcel(workbook);
@@ -57,30 +47,34 @@ public class ExcelGeneratorWeb {
             titleRow.setHeightInPoints((short) 50);
             XSSFCell titulo = titleRow.createCell(0);
             titulo.setCellStyle(titleStyle);
-            titulo.setCellValue(nomeTitulo);
+            titulo.setCellValue(request.getName());
 
             XSSFRow headerRow = sheet.createRow(rowCount++);
             headerRow.setHeightInPoints((short) 20);
+           var iterator = nomeColunas.iterator();
             for (int i = 0; i < nomeColunas.size(); i++) {
                 XSSFCell cell = headerRow.createCell(i);
-                cell.setCellValue(nomeColunas.get(i));
+                cell.setCellValue(iterator.next());
                 cell.setCellStyle(headerCellStyle);
             }
 
-            Field[] fields = Arrays.stream(listaDados.get(0).getClass().getDeclaredFields()).filter(field -> field.isAnnotationPresent(ExcelColumn.class)).toArray(Field[]::new);
-
-            for (Object object : listaDados) {
+            for (Object object : data) {
                 XSSFRow row = sheet.createRow(rowCount++);
-                for (int i = 0; i < fields.length; i++) {
+                LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) object;
+                var newIterator = nomeColunas.iterator();
+                for (int i = 0; i < nomeColunas.size(); i++) {
                     XSSFCell cell = row.createCell(i);
-                    Object value = this.getFieldByIndex(object, fields, i);
+                    Object value = map.get(newIterator.next());
                     cell.setCellStyle(dataCellStyle);
-                    if (value instanceof String) cell.setCellValue((String) value);
-                    if (value instanceof Integer) cell.setCellValue((Integer) value);
-                    if (value instanceof Boolean) cell.setCellValue((Boolean) value);
-                    if (value instanceof Enum<?>) cell.setCellValue(((Enum<?>) value).name());
-                    if (value instanceof BigDecimal || value instanceof Double)
-                        cell.setCellValue(Double.parseDouble(value.toString()));
+                    switch (value) {
+                        case String s -> cell.setCellValue(s);
+                        case Integer j -> cell.setCellValue(j);
+                        case Boolean b -> cell.setCellValue(b);
+                        case Enum<?> e -> cell.setCellValue(e.name());
+                        case BigDecimal bd -> cell.setCellValue(bd.doubleValue());
+                        case Double d -> cell.setCellValue(d);
+                        default -> throw new IllegalArgumentException("Unsupported type: Cell Value must be a primitive type" + value.getClass());
+                    }
                 }
             }
             for (int i = 0; i < nomeColunas.size(); i++) {
@@ -90,8 +84,6 @@ public class ExcelGeneratorWeb {
                 workbook.write(fileOutputStream);
                 return fileOutputStream.toByteArray();
             }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -114,21 +106,10 @@ public class ExcelGeneratorWeb {
         return nomePlanilha;
     }
 
-    private List<String> extrairColunasPorAnotacoes(Object object) {
-        Field[] fields = object.getClass().getDeclaredFields();
-        List<String> colunas = new ArrayList<>();
-        for (Field field : fields) {
-            Optional<ExcelColumn> annotation = Optional.ofNullable(field.getAnnotation(ExcelColumn.class));
-            if (annotation.isPresent()) {
-                String coluna = annotation.get().name();
-                if (coluna.isEmpty()) {
-                    colunas.add(field.getName());
-                    continue;
-                }
-                colunas.add(coluna);
-            }
-        }
-        return colunas;
+    private Set<String> extrairColunasPorAnotacoes(List<?> list) {
+        LinkedHashMap<String, String> object = (LinkedHashMap<String, String>) list.getFirst();
+        Set<String> fields = object.keySet();
+        return fields;
     }
 
     private XSSFCellStyle criarEstiloDoTitulo(XSSFWorkbook workbook) {

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class ExcelGeneratorLocally {
+public class ExcelGeneratorLocal {
     /**
      * Método para criar uma planilha Excel, os dados podem ser carregados a partir de qualquer DTO, contanto que seja não seja uma classe wrapper. O nome da planilha é
      * recuperado através da anotação @ExcelTable, presente na classe dos dados. Os nomes das colunas tem relação direta com @ExcelColumn.
