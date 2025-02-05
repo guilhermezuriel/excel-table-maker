@@ -24,7 +24,7 @@ public class ExcelMakerController {
 
     @PostMapping("excel")
     public ResponseEntity<byte[]> createExcel(@RequestBody RequestExcelTable requestExcelTable) throws IOException {
-        var inputStream = this.excelGeneratorWeb.createExcelSheet(requestExcelTable);
+        var inputStream = this.excelGeneratorWeb.generateExcelTable(requestExcelTable);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", requestExcelTable.name()+".xlsx");
