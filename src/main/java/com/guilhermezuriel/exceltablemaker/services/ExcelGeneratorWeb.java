@@ -7,41 +7,29 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 @Service
 public class ExcelGeneratorWeb {
 
     public byte[] createExcelSheet(RequestExcelTable request) throws IOException {
-//        this.validarListaDeDados(request.data());
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            //TODO: CHANGE
-
-            String name;
-            if(Objects.isNull(request.name())){
-                name = UUID.randomUUID().toString();
+            String name = request.name() != null ? request.name() : "Sheet - "+ UUID.randomUUID();
+            var data = request.data();
+            if(Objects.isNull(data) || data.isEmpty()) {
+                throw new RuntimeException("Data is empty");
             }
-            name = request.name();
-            Set<String> columns = this.extractColumnsByReference((LinkedHashMap<String, Object>) request.data().getFirst());
-
+            Set<String> columns = this.extractColumnsByReference(data);
             if (columns.isEmpty()) {
                 return null;
             }
-
             int rowCount = 0;
-
-            var data = request.data();
-
             XSSFSheet sheet = workbook.createSheet(name);
-
            this.createTitle(sheet, workbook, rowCount, name);
-
 
             // Headers Rows
             XSSFCellStyle headerCellStyle = this.createHeaderStyle(workbook);
@@ -54,6 +42,7 @@ public class ExcelGeneratorWeb {
                 cell.setCellStyle(headerCellStyle);
             }
 
+            //Apply data class
             XSSFCellStyle dataCellStyle = this.createDataStyle(workbook);
             for (Object object : data) {
                 XSSFRow row = sheet.createRow(rowCount++);
@@ -70,6 +59,8 @@ public class ExcelGeneratorWeb {
                         case Enum<?> e -> cell.setCellValue(e.name());
                         case BigDecimal bd -> cell.setCellValue(bd.doubleValue());
                         case Double d -> cell.setCellValue(d);
+                        case LocalDate ld -> cell.setCellValue(ld.toString());
+                        case LocalDateTime ldt -> cell.setCellValue(ldt.toString());
                         default -> throw new IllegalArgumentException("Unsupported type: Cell Value must be a primitive type" + value.getClass());
                     }
                 }
@@ -84,8 +75,9 @@ public class ExcelGeneratorWeb {
         }
     }
 
-    private Set<String> extractColumnsByReference(LinkedHashMap<String, Object> data) {
-        return data.keySet();
+    private Set<String> extractColumnsByReference(AbstractList<?> list) {
+        var columsnReference = (LinkedHashMap<String, Object>) list.getFirst();
+        return columsnReference.keySet();
     }
 
     private XSSFCellStyle createTitleStyle(XSSFWorkbook workbook) {
