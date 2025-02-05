@@ -40,17 +40,11 @@ public class ExcelGeneratorWeb {
 
             XSSFSheet sheet = workbook.createSheet(name);
 
-            //REFACTOR: EXTRACT METHOD
-            XSSFCellStyle titleStyle = this.createTitleStyle(workbook);
-            XSSFRow titleRow = sheet.createRow(rowCount++);
-            titleRow.setHeightInPoints((short) 50);
-            XSSFCell title = titleRow.createCell(0);
-            title.setCellStyle(titleStyle);
-            title.setCellValue(request.name());
+           this.createTitle(sheet, workbook, rowCount, name);
 
+
+            // Headers Rows
             XSSFCellStyle headerCellStyle = this.createHeaderStyle(workbook);
-            XSSFCellStyle dataCellStyle = this.createDataStyle(workbook);
-
             XSSFRow headerRow = sheet.createRow(rowCount++);
             headerRow.setHeightInPoints((short) 20);
            var iterator = columns.iterator();
@@ -60,6 +54,7 @@ public class ExcelGeneratorWeb {
                 cell.setCellStyle(headerCellStyle);
             }
 
+            XSSFCellStyle dataCellStyle = this.createDataStyle(workbook);
             for (Object object : data) {
                 XSSFRow row = sheet.createRow(rowCount++);
                 LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) object;
@@ -110,6 +105,15 @@ public class ExcelGeneratorWeb {
         return titleCellStyle;
     }
 
+    private void createTitle(XSSFSheet sheet, XSSFWorkbook workbook, int rowCount, String titleName) {
+        XSSFCellStyle titleStyle = this.createTitleStyle(workbook);
+        XSSFRow titleRow = sheet.createRow(rowCount);
+        titleRow.setHeightInPoints((short) 50);
+        XSSFCell title = titleRow.createCell(0);
+        title.setCellStyle(titleStyle);
+        title.setCellValue(titleName);
+    }
+
 
     private XSSFCellStyle createHeaderStyle(XSSFWorkbook workbook) {
         Font headerFont = workbook.createFont();
@@ -139,11 +143,4 @@ public class ExcelGeneratorWeb {
         return dataCellStyle;
     }
 
-    private Object getFieldByIndex(Object object, Field[] fields, int index) throws IllegalAccessException {
-        if (index < 0 || index >= fields.length) {
-            throw new IndexOutOfBoundsException("Index out of range");
-        }
-        fields[index].setAccessible(true);
-        return fields[index].get(object);
-    }
 }
