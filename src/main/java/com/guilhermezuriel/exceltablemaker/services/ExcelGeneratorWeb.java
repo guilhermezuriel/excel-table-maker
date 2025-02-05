@@ -16,6 +16,10 @@ import java.util.*;
 @Service
 public class ExcelGeneratorWeb {
 
+    //TODO: CREATE INTERFACE OR ABSTRACT CLASS TO IMPLEMENT THESE METHODS, EXCELGENERATORLOCAL AND EXCELGENERATORWEB MUST BE SIBLINGS AND INHERIT/IMPLEMENT THESE CLASS
+    //TODO: CREATE STYLE CLASS
+    //TODO: ROW COUNT AS ATOMIC INTEGER
+
     public byte[] createExcelSheet(RequestExcelTable request) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             String name = request.name() != null ? request.name() : "Sheet - "+ UUID.randomUUID();
@@ -29,20 +33,10 @@ public class ExcelGeneratorWeb {
             }
             int rowCount = 0;
             XSSFSheet sheet = workbook.createSheet(name);
-           this.createTitle(sheet, workbook, rowCount, name);
+            createTitle(sheet, workbook, rowCount++, name);
+            applyHeaderRows(workbook, sheet, rowCount++, columns);
 
-            // Headers Rows
-            XSSFCellStyle headerCellStyle = this.createHeaderStyle(workbook);
-            XSSFRow headerRow = sheet.createRow(rowCount++);
-            headerRow.setHeightInPoints((short) 20);
-           var iterator = columns.iterator();
-            for (int i = 0; i < columns.size(); i++) {
-                XSSFCell cell = headerRow.createCell(i);
-                cell.setCellValue(iterator.next());
-                cell.setCellStyle(headerCellStyle);
-            }
-
-            //Apply data class
+            //Apply data method
             XSSFCellStyle dataCellStyle = this.createDataStyle(workbook);
             for (Object object : data) {
                 XSSFRow row = sheet.createRow(rowCount++);
@@ -72,6 +66,19 @@ public class ExcelGeneratorWeb {
                 workbook.write(fileOutputStream);
                 return fileOutputStream.toByteArray();
             }
+        }
+    }
+
+
+    private void applyHeaderRows(XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, Set<String> columns) {
+        XSSFCellStyle headerCellStyle = this.createHeaderStyle(workbook);
+        XSSFRow headerRow = sheet.createRow(rowCount);
+        headerRow.setHeightInPoints((short) 20);
+        var iterator = columns.iterator();
+        for (int i = 0; i < columns.size(); i++) {
+            XSSFCell cell = headerRow.createCell(i);
+            cell.setCellValue(iterator.next());
+            cell.setCellStyle(headerCellStyle);
         }
     }
 
