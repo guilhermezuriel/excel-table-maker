@@ -1,16 +1,13 @@
-package com.guilhermezuriel.exceltablemaker.services;
+package com.guilhermezuriel.exceltablemaker.excelGenerator.base;
 
 import org.apache.poi.xssf.usermodel.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-public abstract class ExcelGeneratorInterface{
-    protected byte[] createExcelSheet(String fileName, List<?> data,  Set<String> columns) throws IOException {
+public abstract class BaseExcel implements BaseExcelService {
+    protected byte[] createExcelSheet(String fileName, AbstractList<?> data, Set<String> columns) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             String name = fileName != null ? fileName : "Sheet - "+ UUID.randomUUID();
             if(Objects.isNull(data) || data.isEmpty()) {

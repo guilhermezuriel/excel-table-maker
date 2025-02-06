@@ -1,8 +1,8 @@
-package com.guilhermezuriel.exceltablemaker.services;
+package com.guilhermezuriel.exceltablemaker.excelGenerator.impl;
 
-import com.guilhermezuriel.exceltablemaker.dtos.RequestExcelTable;
+import com.guilhermezuriel.exceltablemaker.excelGenerator.base.BaseExcel;
 import org.apache.poi.xssf.usermodel.*;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -10,21 +10,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.AbstractList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
+@Component
+public class ExcelGeneratorWeb extends BaseExcel{
 
-@Service
-public class ExcelGeneratorWeb extends ExcelGeneratorInterface{
-
-    public byte[] generateExcelTable(RequestExcelTable request) throws IOException {
-        var data = request.data();
-        Set<String> columns = extractColumnsByReference(data);
-       return this.createExcelSheet(request.name(), data, columns);
+    @Override
+    public byte[] generateExcelTable(AbstractList<?> data, String name) throws IOException {
+        Set<String> columns = extractColumnsByReference((AbstractList<?>) data);
+       return this.createExcelSheet(name, data, columns);
     }
 
     @Override
-    public void applyDataToSheet(List<?> data, Set<String> columns, XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, XSSFCellStyle style) {
+    public byte[] generateExcelTable(AbstractList<?> data) throws IOException {
+        String name = UUID.randomUUID().toString();
+        return generateExcelTable(data, name);
+    }
+
+    @Override
+    public void applyDataToSheet(AbstractList<?> data, Set<String> columns, XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, XSSFCellStyle style) {
         for (Object object : data) {
             XSSFRow row = sheet.createRow(rowCount++);
             LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) object;
