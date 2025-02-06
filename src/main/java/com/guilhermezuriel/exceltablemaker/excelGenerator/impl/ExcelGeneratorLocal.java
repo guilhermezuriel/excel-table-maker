@@ -3,17 +3,12 @@ package com.guilhermezuriel.exceltablemaker.excelGenerator.impl;
 import com.guilhermezuriel.exceltablemaker.excelGenerator.annotations.ExcelColumn;
 import com.guilhermezuriel.exceltablemaker.excelGenerator.annotations.ExcelTable;
 import com.guilhermezuriel.exceltablemaker.excelGenerator.base.BaseExcel;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.AbstractList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ExcelGeneratorLocal extends BaseExcel{
@@ -40,8 +35,16 @@ public class ExcelGeneratorLocal extends BaseExcel{
     }
 
     @Override
-    public void applyDataToSheet(AbstractList<?> data, Set<String> columns, XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, XSSFCellStyle cellStyle) {
-
+    public void applyDataToSheet(AbstractList<?> data, Set<String> columns, XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, XSSFCellStyle style)  {
+        Field[] fields = Arrays.stream(data.getFirst().getClass().getDeclaredFields()).filter(field -> field.isAnnotationPresent(ExcelColumn.class)).toArray(Field[]::new);
+        for (Object object : data) {
+            XSSFRow row = sheet.createRow(rowCount++);
+            for (int i = 0; i < fields.length; i++) {
+                XSSFCell cell = row.createCell(i);
+                Object value = this.getFieldByIndex(object, fields, i);
+                this.setDataCellWithSyle(style, cell, value);
+            }
+        }
     }
 
     private void validateDataList(AbstractList<?> data) {
@@ -49,9 +52,13 @@ public class ExcelGeneratorLocal extends BaseExcel{
             throw new RuntimeException();
         }
         Object first = data.getFirst();
+        boolean instance = first instanceof Class;
+        if(!instance) {
+            throw new IllegalArgumentException("Data is not a class");
+        }
         Class<?> aClass = first.getClass();
         if (aClass.getAnnotation(ExcelTable.class) == null) {
-            throw new RuntimeException();
+            throw new RuntimeException("Data is not annotated with @ExcelTable");
         }
     }
 
@@ -79,12 +86,16 @@ public class ExcelGeneratorLocal extends BaseExcel{
         return columns;
     }
 
-    private Object getFieldByIndex(Object object, Field[] fields, int index) throws IllegalAccessException {
-        if (index < 0 || index >= fields.length) {
-            throw new IndexOutOfBoundsException("Index out of range");
+    private Object getFieldByIndex(Object object, Field[] fields, int index) {
+        try {
+            if (index < 0 || index >= fields.length) {
+                throw new IndexOutOfBoundsException("Index out of range");
+            }
+            fields[index].setAccessible(true);
+            return fields[index].get(object);
+        }catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
-        fields[index].setAccessible(true);
-        return fields[index].get(object);
     }
 
 }

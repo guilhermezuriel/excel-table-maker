@@ -37,18 +37,7 @@ public class ExcelGeneratorWeb extends BaseExcel{
             for (int i = 0; i < columns.size(); i++) {
                 XSSFCell cell = row.createCell(i);
                 Object value = map.get(newIterator.next());
-                cell.setCellStyle(style);
-                switch (value) {
-                    case String s -> cell.setCellValue(s);
-                    case Integer j -> cell.setCellValue(j);
-                    case Boolean b -> cell.setCellValue(b);
-                    case Enum<?> e -> cell.setCellValue(e.name());
-                    case BigDecimal bd -> cell.setCellValue(bd.doubleValue());
-                    case Double d -> cell.setCellValue(d);
-                    case LocalDate ld -> cell.setCellValue(ld.toString());
-                    case LocalDateTime ldt -> cell.setCellValue(ldt.toString());
-                    default -> throw new IllegalArgumentException("Unsupported type: Cell Value must be a primitive type" + value.getClass());
-                }
+                this.setDataCellWithSyle(style, cell, value);
             }
         }
     }

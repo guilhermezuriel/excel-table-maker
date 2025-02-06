@@ -4,6 +4,9 @@ import org.apache.poi.xssf.usermodel.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public abstract class BaseExcel implements BaseExcelService {
@@ -33,6 +36,21 @@ public abstract class BaseExcel implements BaseExcelService {
         }
     }
 
+    protected void setDataCellWithSyle(XSSFCellStyle style, XSSFCell cell, Object value) {
+        cell.setCellStyle(style);
+        switch (value) {
+            case String s -> cell.setCellValue(s);
+            case Integer j -> cell.setCellValue(j);
+            case Boolean b -> cell.setCellValue(b);
+            case Enum<?> e -> cell.setCellValue(e.name());
+            case BigDecimal bd -> cell.setCellValue(bd.doubleValue());
+            case Double d -> cell.setCellValue(d);
+            case LocalDate ld -> cell.setCellValue(ld.toString());
+            case LocalDateTime ldt -> cell.setCellValue(ldt.toString());
+            default -> throw new IllegalArgumentException("Unsupported type: Cell Value must be a primitive type" + value.getClass());
+        }
+    }
+
     private void applyHeaderRows(XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, Set<String> columns) {
         XSSFCellStyle headerCellStyle = ExcelStyle.createHeaderStyle(workbook);
         XSSFRow headerRow = sheet.createRow(rowCount);
@@ -54,7 +72,4 @@ public abstract class BaseExcel implements BaseExcelService {
         title.setCellValue(titleName);
     }
 
-    public void applyDataToSheet(List<?> data, Set<String> columns, XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, XSSFCellStyle cellStyle) {
-        throw new UnsupportedOperationException("This method needs to be implemented by his siblings.");
-    }
 }
