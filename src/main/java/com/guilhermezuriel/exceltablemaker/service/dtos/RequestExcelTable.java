@@ -1,4 +1,4 @@
-package com.guilhermezuriel.exceltablemaker.dtos;
+package com.guilhermezuriel.exceltablemaker.service.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -10,6 +10,7 @@ import java.util.AbstractList;
 
 @Builder
 public record RequestExcelTable(
+    @NotNull
      String name,
     @NotNull
     @Length(min = 1)
