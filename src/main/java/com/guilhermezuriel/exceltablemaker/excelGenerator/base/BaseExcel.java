@@ -1,5 +1,9 @@
 package com.guilhermezuriel.exceltablemaker.excelGenerator.base;
 
+import com.guilhermezuriel.exceltablemaker.excelGenerator.style.CellStyle;
+import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.io.ByteArrayOutputStream;
@@ -7,10 +11,13 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public abstract class BaseExcel implements BaseExcelService {
-    protected byte[] createExcelSheet(String fileName, AbstractList<?> data, Set<String> columns) throws IOException {
+    protected byte[] createExcelSheet(String fileName, AbstractList<?> data, Set<String> columns, StyleExcelTable style) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             String name = fileName != null ? fileName : "Sheet - "+ UUID.randomUUID();
             if(Objects.isNull(data) || data.isEmpty()) {
@@ -21,14 +28,20 @@ public abstract class BaseExcel implements BaseExcelService {
             }
             int rowCount = 0;
             XSSFSheet sheet = workbook.createSheet(name);
-            applyTilte(sheet, workbook, rowCount++, name);
-            applyHeaderRows(workbook, sheet, rowCount++, columns);
-            XSSFCellStyle dataCellStyle = ExcelStyle.createDataStyle(workbook);
+            applyTilte(sheet, workbook, rowCount++, name, style.getTitle());
+            applyHeaderRows(workbook, sheet, rowCount++, columns, style.getHeader());
+            XSSFCellStyle dataCellStyle = ExcelStyle.createStyle(workbook, style.getData());
             applyDataToSheet(data, columns, workbook, sheet, rowCount++, dataCellStyle);
+
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, columns.size() - 1));
+            for (int i = 0; i <= columns.size() - 1; i++) {
+                sheet.setColumnWidth(i, 4000);
+            }
 
             for (int i = 0; i < columns.size(); i++) {
                 sheet.autoSizeColumn(i);
             }
+
             try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
                 workbook.write(fileOutputStream);
                 return fileOutputStream.toByteArray();
@@ -51,8 +64,8 @@ public abstract class BaseExcel implements BaseExcelService {
         }
     }
 
-    private void applyHeaderRows(XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, Set<String> columns) {
-        XSSFCellStyle headerCellStyle = ExcelStyle.createHeaderStyle(workbook);
+    private void applyHeaderRows(XSSFWorkbook workbook, XSSFSheet sheet, int rowCount, Set<String> columns, CellStyle style) {
+        XSSFCellStyle headerCellStyle = ExcelStyle.createStyle(workbook, style);
         XSSFRow headerRow = sheet.createRow(rowCount);
         headerRow.setHeightInPoints((short) 20);
         var iterator = columns.iterator();
@@ -63,11 +76,11 @@ public abstract class BaseExcel implements BaseExcelService {
         }
     }
 
-    private void applyTilte(XSSFSheet sheet, XSSFWorkbook workbook, int rowCount, String titleName) {
-        XSSFCellStyle titleStyle = ExcelStyle.createTitleStyle(workbook);
+    private void applyTilte(XSSFSheet sheet, XSSFWorkbook workbook, int rowCount, String titleName, CellStyle style) {
+        XSSFCellStyle titleStyle = ExcelStyle.createStyle(workbook, style);
         XSSFRow titleRow = sheet.createRow(rowCount);
-        titleRow.setHeightInPoints((short) 50);
-        XSSFCell title = titleRow.createCell(0);
+        titleRow.setHeightInPoints((short) 20);
+        XSSFCell title = titleRow.createCell(rowCount, CellType.STRING);
         title.setCellStyle(titleStyle);
         title.setCellValue(titleName);
     }

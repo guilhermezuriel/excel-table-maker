@@ -3,6 +3,7 @@ package com.guilhermezuriel.exceltablemaker.excelGenerator.impl;
 import com.guilhermezuriel.exceltablemaker.excelGenerator.annotations.ExcelColumn;
 import com.guilhermezuriel.exceltablemaker.excelGenerator.annotations.ExcelTable;
 import com.guilhermezuriel.exceltablemaker.excelGenerator.base.BaseExcel;
+import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Component;
 
@@ -20,18 +21,18 @@ public class ExcelGeneratorLocal extends BaseExcel{
      * @param data - List containing the data to be filled
      */
     @Override
-    public byte[] generateExcelTable(AbstractList<?> data) throws IOException {
+    public byte[] generateExcelTable(AbstractList<?> data, StyleExcelTable style) throws IOException {
         validateDataList(data);
         String fileName = extractSheetNameByAnnotations(data);
         Set<String> columns = exctractColumnsByAnnotations(data);
-        return this.createExcelSheet(fileName, data, columns);
+        return this.createExcelSheet(fileName, data, columns, style);
     }
 
     @Override
-    public byte[] generateExcelTable(AbstractList<?> data, String sheetName) throws IOException {
+    public byte[] generateExcelTable(AbstractList<?> data, String sheetName, StyleExcelTable style) throws IOException {
         validateDataList(data);
         Set<String> columns = exctractColumnsByAnnotations(data);
-        return this.createExcelSheet(sheetName, data, columns);
+        return this.createExcelSheet(sheetName, data, columns, style);
     }
 
     @Override

@@ -1,13 +1,11 @@
 package com.guilhermezuriel.exceltablemaker.excelGenerator.impl;
 
 import com.guilhermezuriel.exceltablemaker.excelGenerator.base.BaseExcel;
+import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.AbstractList;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -17,15 +15,15 @@ import java.util.UUID;
 public class ExcelGeneratorWeb extends BaseExcel{
 
     @Override
-    public byte[] generateExcelTable(AbstractList<?> data, String name) throws IOException {
-        Set<String> columns = extractColumnsByReference((AbstractList<?>) data);
-       return this.createExcelSheet(name, data, columns);
+    public byte[] generateExcelTable(AbstractList<?> data, String name, StyleExcelTable style) throws IOException {
+        Set<String> columns = extractColumnsByReference(data);
+       return this.createExcelSheet(name, data, columns, style);
     }
 
     @Override
-    public byte[] generateExcelTable(AbstractList<?> data) throws IOException {
+    public byte[] generateExcelTable(AbstractList<?> data, StyleExcelTable style) throws IOException {
         String name = UUID.randomUUID().toString();
-        return generateExcelTable(data, name);
+        return generateExcelTable(data, name, style);
     }
 
     @Override
