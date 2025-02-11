@@ -1,4 +1,4 @@
-package com.guilhermezuriel.exceltablemaker.excelGenerator.style;
+package com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.style;
 
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -19,7 +19,7 @@ public record CellStyle(
     public static CellStyle defaultTitle() {
         return new CellStyle((short) 13,
                 IndexedColors.WHITE,
-                IndexedColors.BLACK,
+                IndexedColors.GREY_50_PERCENT,
                 FillPatternType.FINE_DOTS,
                 true,
                 false,
@@ -32,7 +32,7 @@ public record CellStyle(
         return new CellStyle(
                 (short) 13,
                 IndexedColors.WHITE,
-                IndexedColors.BLACK,
+                IndexedColors.GREY_50_PERCENT,
                 FillPatternType.FINE_DOTS,
                 false,
                 false,

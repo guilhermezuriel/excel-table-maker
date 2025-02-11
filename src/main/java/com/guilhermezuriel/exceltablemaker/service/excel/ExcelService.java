@@ -1,7 +1,7 @@
-package com.guilhermezuriel.exceltablemaker.service;
+package com.guilhermezuriel.exceltablemaker.service.excel;
 
-import com.guilhermezuriel.exceltablemaker.service.dtos.RequestExcelTable;
-import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.dtos.RequestExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.dtos.StyleExcelTable;
 
 import java.io.IOException;
 import java.util.List;

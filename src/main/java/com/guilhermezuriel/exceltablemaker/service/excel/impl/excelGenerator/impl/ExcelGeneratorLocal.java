@@ -1,9 +1,9 @@
-package com.guilhermezuriel.exceltablemaker.excelGenerator.impl;
+package com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.impl;
 
-import com.guilhermezuriel.exceltablemaker.excelGenerator.annotations.ExcelColumn;
-import com.guilhermezuriel.exceltablemaker.excelGenerator.annotations.ExcelTable;
-import com.guilhermezuriel.exceltablemaker.excelGenerator.base.BaseExcel;
-import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.annotations.ExcelColumn;
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.annotations.ExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.base.BaseExcel;
+import com.guilhermezuriel.exceltablemaker.service.excel.dtos.StyleExcelTable;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Component;
 

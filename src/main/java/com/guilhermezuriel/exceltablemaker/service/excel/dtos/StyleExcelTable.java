@@ -1,6 +1,6 @@
-package com.guilhermezuriel.exceltablemaker.service.dtos;
+package com.guilhermezuriel.exceltablemaker.service.excel.dtos;
 
-import com.guilhermezuriel.exceltablemaker.excelGenerator.style.CellStyle;
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.style.CellStyle;
 import lombok.Getter;
 
 import java.util.Objects;

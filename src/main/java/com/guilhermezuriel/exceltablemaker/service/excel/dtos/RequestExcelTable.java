@@ -1,4 +1,4 @@
-package com.guilhermezuriel.exceltablemaker.service.dtos;
+package com.guilhermezuriel.exceltablemaker.service.excel.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;

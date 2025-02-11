@@ -1,7 +1,7 @@
-package com.guilhermezuriel.exceltablemaker.excelGenerator.base;
+package com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.base;
 
-import com.guilhermezuriel.exceltablemaker.excelGenerator.style.CellStyle;
-import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.style.CellStyle;
+import com.guilhermezuriel.exceltablemaker.service.excel.dtos.StyleExcelTable;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -34,7 +34,7 @@ public abstract class BaseExcel implements BaseExcelService {
             applyDataToSheet(data, columns, workbook, sheet, rowCount++, dataCellStyle);
 
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, columns.size() - 1));
-            for (int i = 0; i <= columns.size() - 1; i++) {
+            for (int i = 0; i <= columns.size(); i++) {
                 sheet.setColumnWidth(i, 4000);
             }
 
@@ -60,6 +60,7 @@ public abstract class BaseExcel implements BaseExcelService {
             case Double d -> cell.setCellValue(d);
             case LocalDate ld -> cell.setCellValue(ld.toString());
             case LocalDateTime ldt -> cell.setCellValue(ldt.toString());
+            case null -> cell.setCellValue("");
             default -> throw new IllegalArgumentException("Unsupported type: Cell Value must be a primitive type" + value.getClass());
         }
     }

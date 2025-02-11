@@ -1,7 +1,7 @@
 package com.guilhermezuriel.exceltablemaker.controller;
 
-import com.guilhermezuriel.exceltablemaker.service.ExcelService;
-import com.guilhermezuriel.exceltablemaker.service.dtos.RequestExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.ExcelService;
+import com.guilhermezuriel.exceltablemaker.service.excel.dtos.RequestExcelTable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

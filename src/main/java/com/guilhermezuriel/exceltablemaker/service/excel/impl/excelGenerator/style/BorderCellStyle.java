@@ -1,4 +1,4 @@
-package com.guilhermezuriel.exceltablemaker.excelGenerator.style;
+package com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.style;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;

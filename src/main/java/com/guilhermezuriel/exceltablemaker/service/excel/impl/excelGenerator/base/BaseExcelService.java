@@ -1,13 +1,12 @@
-package com.guilhermezuriel.exceltablemaker.excelGenerator.base;
+package com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.base;
 
-import com.guilhermezuriel.exceltablemaker.service.dtos.StyleExcelTable;
+import com.guilhermezuriel.exceltablemaker.service.excel.dtos.StyleExcelTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
 import java.util.AbstractList;
-import java.util.List;
 import java.util.Set;
 
 public interface BaseExcelService {

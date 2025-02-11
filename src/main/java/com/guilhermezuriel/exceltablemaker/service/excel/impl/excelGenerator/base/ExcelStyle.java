@@ -1,6 +1,6 @@
-package com.guilhermezuriel.exceltablemaker.excelGenerator.base;
+package com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.base;
 
-import com.guilhermezuriel.exceltablemaker.excelGenerator.style.CellStyle;
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.style.CellStyle;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
