@@ -14,6 +14,14 @@ import java.util.UUID;
 @Component
 public class ExcelGeneratorWeb extends BaseExcel{
 
+    /**
+     * Method to create an Excel spreadsheet. The data can be loaded from a Request Object.
+     * The columns name are extracted from the object data field;
+     *
+     * @param data - List containing the data to be filled
+     * @param name -  Table name
+     * @param style - Personalized style object
+     */
     @Override
     public byte[] generateExcelTable(AbstractList<?> data, String name, StyleExcelTable style) throws IOException {
         Set<String> columns = extractColumnsByReference(data);
