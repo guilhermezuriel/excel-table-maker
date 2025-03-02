@@ -6,9 +6,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 @RestController
 @RequestMapping("v1")
@@ -30,8 +30,8 @@ public class ExcelMakerController {
     }
 
     @PostMapping("excel")
-    public ResponseEntity<byte[]> createExcelByCsvFile(@RequestBody InputStream inputStream, @RequestParam String tableName) throws IOException {
-        var inputStream = this.excelService.createExcelByRequest();
+    public ResponseEntity<byte[]> createExcelByCsvFile(@RequestParam("file") MultipartFile multipartFile, @RequestParam String tableName) throws IOException {
+        var inputStream = this.excelService.createExcelByCsv(multipartFile);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", tableName +".xlsx");

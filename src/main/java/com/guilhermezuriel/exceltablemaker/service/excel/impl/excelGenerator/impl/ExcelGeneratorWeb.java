@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ExcelGeneratorWeb extends BaseExcel{
 
     /**
-     * Method to create an Excel spreadsheet. The data can be loaded from a Request Object.
+     * Method to create an Excel spreadsheet. The data is loaded from a Request Object.
      * The columns name are extracted from the object data field;
      *
      * @param data - List containing the data to be filled

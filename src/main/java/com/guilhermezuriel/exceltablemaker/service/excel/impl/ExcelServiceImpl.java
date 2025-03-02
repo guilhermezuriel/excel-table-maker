@@ -1,5 +1,6 @@
 package com.guilhermezuriel.exceltablemaker.service.excel.impl;
 
+import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.impl.ExcelGeneratorCsv;
 import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.impl.ExcelGeneratorLocal;
 import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.impl.ExcelGeneratorWeb;
 import com.guilhermezuriel.exceltablemaker.service.excel.ExcelService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -20,6 +22,15 @@ public class ExcelServiceImpl implements ExcelService {
 
     private final ExcelGeneratorLocal excelGeneratorLocal;
     private final ExcelGeneratorWeb excelGeneratorWeb;
+    private final ExcelGeneratorCsv excelGeneratorCsv;
+
+    @Override
+    public byte[] createExcelByCsv(MultipartFile file) {
+        if(file.isEmpty()){
+            throw new RuntimeException();
+        }
+        return this.excelGeneratorCsv.generateExcelTable();
+    }
 
     @Override
     public byte[] createExcelByRequest(@NonNull RequestExcelTable request) throws IOException {

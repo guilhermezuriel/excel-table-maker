@@ -14,7 +14,7 @@ import java.util.*;
 @Component
 public class ExcelGeneratorLocal extends BaseExcel{
     /**
-     * Method to create an Excel spreadsheet. The data can be loaded from any DTO, as long as it is not a wrapper class.
+     * Method to create an Excel spreadsheet. The data is loaded from any DTO, as long as it is not a wrapper class.
      * The sheet name is retrieved through the @ExcelTable annotation, present in the data class.
      * The column names are directly related to the @ExcelColumn annotation.
      *
