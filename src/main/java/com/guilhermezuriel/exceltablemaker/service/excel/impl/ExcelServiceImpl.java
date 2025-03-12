@@ -1,10 +1,10 @@
 package com.guilhermezuriel.exceltablemaker.service.excel.impl;
 
-import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.impl.ExcelGeneratorLocal;
-import com.guilhermezuriel.exceltablemaker.service.excel.impl.excelGenerator.impl.ExcelGeneratorWeb;
+import com.guilhermezuriel.dtos.RequestExcelTable;
+import com.guilhermezuriel.dtos.StyleExcelTable;
 import com.guilhermezuriel.exceltablemaker.service.excel.ExcelService;
-import com.guilhermezuriel.exceltablemaker.service.excel.dtos.RequestExcelTable;
-import com.guilhermezuriel.exceltablemaker.service.excel.dtos.StyleExcelTable;
+import com.guilhermezuriel.impl.ExcelGeneratorLocal;
+import com.guilhermezuriel.impl.ExcelGeneratorWeb;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -18,8 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExcelServiceImpl implements ExcelService {
 
-    private final ExcelGeneratorLocal excelGeneratorLocal;
-    private final ExcelGeneratorWeb excelGeneratorWeb;
+
+    private final ExcelGeneratorLocal excelGeneratorLocal = new ExcelGeneratorLocal();
+    private final ExcelGeneratorWeb excelGeneratorWeb = new ExcelGeneratorWeb();
 
     @Override
     public byte[] createExcelByRequest(@NonNull RequestExcelTable request) throws IOException {
